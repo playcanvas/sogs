@@ -20,4 +20,4 @@ pip install -e ./sogs
 
 ## Usage
 
-`sogs-compress --ply your_ply_file.ply --output-dir directory_to_store_images_and_metadata`
+`sogs-compress --ply your_ply_file.ply --output_dir directory_to_store_images_and_metadata`
