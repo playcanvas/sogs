@@ -81,7 +81,7 @@ def run_compression(compress_dir: str, splats: Dict[str, Tensor], verbose: bool)
     for param_name in splats.keys():
         if param_name == "sh0":
             meta["sh0"] = _compress_sh0_with_opacity(
-                compress_dir, "sh0", splats["sh0"], opacities, n_sidelen
+                compress_dir, "sh0", splats["sh0"], opacities, n_sidelen, verbose=verbose
             )
         else:
             compress_fn = _get_compress_fn(param_name)
@@ -132,7 +132,7 @@ def _crop_n_splats(splats: Dict[str, Tensor], n_crop: int) -> Dict[str, Tensor]:
 
 
 def _compress(
-    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int
+    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int, verbose: bool
 ) -> Dict[str, Any]:
     """Compress parameters with 8-bit quantization and lossless PNG compression."""
     grid = params.reshape((n_sidelen, n_sidelen, -1))
@@ -155,7 +155,7 @@ def _compress(
 
 
 def _compress_16bit(
-    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int
+    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int, verbose: bool
 ) -> Dict[str, Any]:
     """Compress parameters with 16-bit quantization and PNG compression."""
     grid = params.reshape((n_sidelen, n_sidelen, -1))
@@ -185,7 +185,8 @@ def _compress_sh0_with_opacity(
     param_name: str,
     sh0: Tensor,
     opacities: Tensor,
-    n_sidelen: int
+    n_sidelen: int,
+    verbose: bool
 ) -> Dict[str, Any]:
     """Combine sh0 (RGB) and opacities as alpha channel into a single RGBA texture."""
     # Reshape to spatial grid
@@ -306,7 +307,7 @@ def pack_quaternion_to_rgba_tensor(q: Tensor) -> Tensor:
     return torch.cat([rgb, a.unsqueeze(-1)], dim=-1)
 
 def _compress_quats(
-    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int
+    compress_dir: str, param_name: str, params: Tensor, n_sidelen: int, verbose: bool
 ) -> Dict[str, Any]:
     """Compress quaternions by packing into RGBA and saving as an 8-bit image."""
     # params: (n_splats,4)
