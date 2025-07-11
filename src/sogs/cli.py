@@ -8,7 +8,7 @@ from .sogs_compression import read_ply, run_compression
 class Config:
     ply: Path
     output_dir: Path
-    verbose: bool = False
+    verbose: bool = True
 
 def main():
 	cfg = tyro.cli(Config)
