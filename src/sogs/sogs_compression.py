@@ -47,7 +47,7 @@ def _get_compress_fn(param_name: str) -> Callable:
     return compress_fn_map[param_name]
 
 
-def run_compression(compress_dir: str, splats: Dict[str, Tensor]) -> None:
+def run_compression(compress_dir: str, splats: Dict[str, Tensor], verbose: bool) -> None:
     """Run compression
 
     Args:
@@ -73,7 +73,7 @@ def run_compression(compress_dir: str, splats: Dict[str, Tensor]) -> None:
 
     meta: Dict[str, Any] = {}
 
-    splats = sort_splats(splats)
+    splats = sort_splats(splats, verbose)
 
     # Extract opacities and merge into sh0
     opacities = splats.pop("opacities")
@@ -86,7 +86,7 @@ def run_compression(compress_dir: str, splats: Dict[str, Tensor]) -> None:
         else:
             compress_fn = _get_compress_fn(param_name)
             meta[param_name] = compress_fn(
-                compress_dir, param_name, splats[param_name], n_sidelen=n_sidelen
+                compress_dir, param_name, splats[param_name], n_sidelen=n_sidelen, verbose=verbose
             )
 
     with open(os.path.join(compress_dir, "meta.json"), "w") as f:
@@ -217,7 +217,8 @@ def _compress_kmeans(
     param_name: str,
     params: Tensor,
     n_sidelen: int,
-    quantization: int = 8
+    quantization: int = 8,
+    verbose: bool = False
 ) -> Dict[str, Any]:
     """Run K-means clustering on parameters and save centroids and labels as images."""
     params = params.reshape(params.shape[0], -1)
@@ -225,7 +226,7 @@ def _compress_kmeans(
     n_clusters = round((len(params) >> 2) / 64) * 64
     n_clusters = min(n_clusters, 2 ** 16)
 
-    kmeans = KMeans(n_clusters=n_clusters, distance="manhattan", verbose=True)
+    kmeans = KMeans(n_clusters=n_clusters, distance="manhattan", verbose=verbose)
     labels = kmeans.fit(params.permute(1, 0).contiguous())
     labels = labels.detach().cpu().numpy()
     centroids = kmeans.centroids.permute(1, 0)
