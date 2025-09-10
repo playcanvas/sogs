@@ -1,3 +1,7 @@
+Please note this repo is no longer being developed.
+
+For SOG compression, please use https://github.com/playcanvas/splat-transform.
+
 # SOGS
 
 Python package to compress Gaussian Splats with [Self-Organizing Gaussians](https://github.com/fraunhoferhhi/Self-Organizing-Gaussians)
